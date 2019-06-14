@@ -70,10 +70,12 @@ client.on('message', msg => {
 
         if (current_blue.length < 1) {
             msg.reply("Blue side needs at minimum 1 player");
+            return
         }
 
         if (current_red.length < 1) {
             msg.reply("Red side needs at minimum 1 player");
+            return
         }
 
         current_blue.forEach(function (id) {
@@ -92,9 +94,11 @@ client.on('message', msg => {
         });
     } else if (msg.content.startsWith("blueid")) {
         // Config for setting blue and red side
-        config.blue_side_voice_id = msg.content.split(" ")[1]
+        config.blue_side_voice_id = msg.content.split(" ")[1];
+        msg.reply("Set blue side voice channel to " + client.channels.find(config.blue_side_voice_id))
     } else if (msg.content.startsWith("redid")) {
-        config.red_side_voice_id = msg.content.split(" ")[1]
+        config.red_side_voice_id = msg.content.split(" ")[1];
+        msg.reply("Set red side voice channel to " + client.channels.find(config.red_side_voice_id))
     }
 });
 
