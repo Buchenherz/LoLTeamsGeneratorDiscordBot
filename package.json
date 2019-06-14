@@ -1,0 +1,16 @@
+{
+  "name": "Teams Generator",
+  "version": "1.0.0",
+  "description": "Generates two Teams from a list of people",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Buchenherz",
+  "license": "",
+  "dependencies": {
+    "discord.io": "^2.5.3",
+    "discord.js": "^11.5.1",
+    "winston": "^3.2.1"
+  }
+}
