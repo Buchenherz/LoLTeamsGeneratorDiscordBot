@@ -13,7 +13,8 @@ let current_red = [];
 // For configuration because a db would be overkill right now
 let config = {
     'blue_side_voice_id': '587725079887216641',
-    'red_side_voice_id': '588464110027407370'
+    'red_side_voice_id': '588464110027407370',
+    'initial_voice_id': ''
 };
 
 // When receiving a message
@@ -27,6 +28,7 @@ client.on('message', msg => {
         try {
             // Get voice channel of message sending user
             const vchan = msg.member.voiceChannel;
+            config.initial_voice_id = vchan.id;
 
             // Get members of voice channel
             let member_list = [];
@@ -43,10 +45,9 @@ client.on('message', msg => {
             // Get names and print message with teams
             let blue_names = [];
             blue_side.forEach(function (value) {
-                    blue_names.push(value[0]);
-                    current_blue.push(value[1]);
-                }
-            );
+                blue_names.push(value[0]);
+                current_blue.push(value[1]);
+            });
             let red_names = [];
             red_side.forEach(function (value) {
                 red_names.push(value[0]);
@@ -59,14 +60,13 @@ client.on('message', msg => {
             msg.reply("Please join a voice channel.")
         }
 
-
         // console.log(blue_side);
         // console.log(red_side);
 
     } else if (msg.content.startsWith("moveteams")) {
         // Get ids for channels from config (hardcoded for our server as default)
-        let blue_id = config.blue_side_voice_id;
-        let red_id = config.red_side_voice_id;
+        let blue_vchan_id = config.blue_side_voice_id;
+        let red_vchan_id = config.red_side_voice_id;
 
         if (current_blue.length < 1) {
             msg.reply("Blue side needs at minimum 1 player");
@@ -77,30 +77,50 @@ client.on('message', msg => {
             msg.reply("Red side needs at minimum 1 player");
             return
         }
+        try {
+            moveTeam(msg, current_blue, blue_vchan_id)
+            moveTeam(msg, current_red, red_vchan_id)
+        } catch (err) {
+            console.log(err)
+            msg.reply("Please specify the blue/red side voice channel id with 'blueid id' and 'redid id'")
+        }
 
-        current_blue.forEach(function (id) {
-            console.log(id);
-            msg.guild.member(id).setVoiceChannel(blue_id).catch(function (err) {
-                console.log(err);
-                msg.reply("Please specify valid voice channels with blueid **id** and redid **id**");
-            })
-        });
-        current_red.forEach(function (id) {
-            console.log(id);
-            msg.guild.member(id).setVoiceChannel(red_id).catch(function (err) {
-                console.log(err);
-                msg.reply("Please specify valid voice channels with blueid **id** and redid **id**");
-            })
-        });
     } else if (msg.content.startsWith("blueid")) {
         // Config for setting blue and red side
         config.blue_side_voice_id = msg.content.split(" ")[1];
-        msg.reply("Set blue side voice channel to " + client.channels.find(config.blue_side_voice_id))
+        console.log(config.blue_side_voice_id)
+        msg.reply("Set blue side voice channel to " + client.channels.get(config.blue_side_voice_id).name);
     } else if (msg.content.startsWith("redid")) {
         config.red_side_voice_id = msg.content.split(" ")[1];
-        msg.reply("Set red side voice channel to " + client.channels.find(config.red_side_voice_id))
+        console.log(config.red_side_voice_id)
+        msg.reply("Set red side voice channel to " + client.channels.get(config.red_side_voice_id).name)
+    } else if (msg.content === 'moveback') {
+        if (config.initial_voice_id === '') {
+            msg.reply("Please call maketeams before calling moveback")
+        }
+        moveTeam(msg, current_red, config.initial_voice_id)
+        moveTeam(msg, current_blue, config.initial_voice_id)
     }
 });
+
+function moveMember(msg, member_id, vchan_id) {
+    msg.guild.member(member_id).setVoiceChannel(vchan_id).catch(function (err) {
+        console.log(err);
+        return new Error(err)
+    }).catch(function (err) {
+        return err
+    })
+}
+
+function moveTeam(msg, team_member_ids, vchan_id) {
+    team_member_ids.forEach(function (member_id) {
+        console.log("Trying to move player with id " + member_id + " to Voicechannel with id " + vchan_id);
+        err = moveMember(msg, member_id, vchan_id)
+        if (err instanceof Error) {
+            throw err
+        }
+    });
+}
 
 /**
  * Shuffles array in place.
