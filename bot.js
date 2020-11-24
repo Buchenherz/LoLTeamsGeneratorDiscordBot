@@ -103,6 +103,12 @@ client.on('message', msg => {
     }
 });
 
+/**
+ * Moves a member of a build to a voice channel
+ * @param {Message} msg 
+ * @param {Array} member_id 
+ * @param {String} vchan_id 
+ */
 function moveMember(msg, member_id, vchan_id) {
     msg.guild.member(member_id).setVoiceChannel(vchan_id).catch(function (err) {
         console.log(err);
@@ -112,6 +118,12 @@ function moveMember(msg, member_id, vchan_id) {
     })
 }
 
+/**
+ * Move a team to a specific voice channel
+ * @param {Message} msg 
+ * @param {Array} team_member_ids 
+ * @param {String} vchan_id 
+ */
 function moveTeam(msg, team_member_ids, vchan_id) {
     team_member_ids.forEach(function (member_id) {
         console.log("Trying to move player with id " + member_id + " to Voicechannel with id " + vchan_id);
